@@ -1,0 +1,5 @@
+<%= form_for :session, url: sessions_path do |f| %>
+  <%= f.label :username, 'Enter a badass username' %><br/>
+  <%= f.text_field :username %><br/>
+  <%= f.submit 'Lets play!!!' %>
+<% end %>
