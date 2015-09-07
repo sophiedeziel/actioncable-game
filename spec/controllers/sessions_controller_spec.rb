@@ -17,7 +17,7 @@ RSpec.describe SessionsController, type: :controller do
 
     it "renders the create template" do
       post :create, session: { username: "dude" }
-      expect(response).to render_template :create
+      expect(response).to redirect_to controller_path
     end
   end
 end

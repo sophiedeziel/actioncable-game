@@ -4,6 +4,7 @@ class SessionsController < ApplicationController
 
   def create
     cookies.signed[:username] = session_params[:username]
+    redirect_to controller_path
   end
 
   private
