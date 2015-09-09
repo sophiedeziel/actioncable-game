@@ -4,31 +4,65 @@
 <html>
   <head></head>
   <body>
-    <figure id="nespad">
-      <div class="cord"></div>
-      <section class="dpad-pane">
-        <div class="dpad-hole"></div>
-        <div id="dpad">
-          <canvas height="150" id="dpad-body" width="150"></canvas><button class="button" id="up"></button><button class="button" id="right"></button><button class="button" id="down"></button><button class="button" id="left"></button>
+  <article>
+    <div class="pad">
+      <div class="topBox">
+      </div>
+      <div class="blackPlane">
+        <span class="nintendo">Nintendo</span>
+        <div class="copy"></div>
+        <span class="r">R</span>
+        <div class="greyFirst"></div>
+        <div class="greySecond first"></div>
+        <div class="greySecond second"></div>
+        <span class="selectText">Select</span>
+        <span class="startText">Start</span>
+        <div class="centerBtn select">
+          <div class="btnShadow"></div>
         </div>
-      </section>
-      <section class="menu-pane">
-        <div class="labels">
-          <label class="select" for="select">Select</label><label class="start" for="start">Start</label>
+        <div class="centerBtn start">
+          <div class="btnShadow"></div>
         </div>
-        <div class="buttons">
-          <button class="button select" id="select">Select</button><button class="button start" id="start">Start</button>
+        <div class="centerPanel"></div>
+        <div class="centerPanelInside"></div>
+        <div class="greyLast"></div>
+        <div class="greySquare a">
+          <div class="btn control" data-action="b">
+            <div class="btnLight"></div>
+          </div>
+          <span class="bBtn">b</span>
         </div>
-      </section>
-      <section class="action-pane">
-        <div class="logo">
-          Nintendo
+        <div class="greySquare b">
+          <div class="btn control" data-action="a">
+            <div class="btnLight"></div>
+          </div>
+          <span class="aBtn">a</span>
         </div>
-        <div class="buttons">
-          <label class="label">B<button class="button" id="b"></button></label><label class="label">A<button class="button" id="a"></button></label>
+        <div class="crossV"></div>
+        <div class="crossTop control" data-action="up">
+          <div class="arrowUp"></div>
+          <div class="arrowSquareUp"></div>
         </div>
-      </section>
-    </figure>
+        <div class="crossRight control" data-action="right">
+          <div class="arrowRight"></div>
+          <div class="arrowSquareRight"></div>
+        </div>
+        <div class="crossBottom control" data-action="down">
+          <div class="arrowBottom"></div>
+          <div class="arrowSquareBottom"></div>
+        </div>
+        <div class="crossLeft control" data-action="left">
+          <div class="arrowLeft"></div>
+          <div class="arrowSquareLeft"></div>
+        </div>
+        <div class="crossCenter">
+          <div class="crossCircle"></div>
+        </div>
+        <div class="crossO"></div>
+      </div>
+    </div>
+  </article>
+ source : http://codepen.io/davidetesta/pen/EIrCw/
   </body>
 </html>
 
