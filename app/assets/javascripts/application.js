@@ -13,10 +13,5 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+//= require cable
 //= require_tree .
-
-$(function(){
-  $('.control').bind('touchstart mousedown', function(){
-    console.log($(this).data('action'))
-  });
-});
