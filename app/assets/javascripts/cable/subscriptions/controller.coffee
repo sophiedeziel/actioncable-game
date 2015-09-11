@@ -3,8 +3,9 @@ App.controller = App.cable.subscriptions.create "ControllerChannel",
     @perform 'action', { data: data, user: $('.pad').data('username') }
 
 $( ->
-  $('.control').bind 'touchstart mousedown', ->
-    console.log($(this).data('action'))
-    App.controller.move($(this).data('action'))
+  $('.control').bind 'touchstart', ->
+    App.controller.move($(this).data('action') + '-start')
 
+  $('.holdcontrol').bind 'touchend', ->
+    App.controller.move($(this).data('action') + '-end')
 )
