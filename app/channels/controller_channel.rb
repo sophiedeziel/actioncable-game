@@ -1,14 +1,5 @@
 class ControllerChannel < ApplicationCable::Channel
-
   def action(data)
-    puts data
-  end
-
-  def message(data)
-    puts data
-  end
-
-  def move(data=nil)
-    puts data
+    ActionCable.server.broadcast "game_channel", data
   end
 end
