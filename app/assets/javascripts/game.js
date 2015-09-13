@@ -21,12 +21,36 @@ function ActionCableGame (params) {
 
   this.drawStuff = function() {
     var game = this;
+    $(game.canvas).html('');
     $.each(game.players_list.get_players(), function(i, player) {
       var img = new Image();
-      img.onload = function() {
+      $(img).load(function() {
         game.context.clearRect(player.position.x,  player.position.y, 75, 75);
         game.context.drawImage(img, player.position.x, player.position.y, 75, 75);
-      };
+        var imageData = game.context.getImageData(player.position.x, player.position.y, 75, 75);
+        var pixels = imageData.data;
+        var numPixels = imageData.width * imageData.height;
+        for (var i = 0; i < numPixels; i++) {
+          var r = pixels[i*4];
+          var g =  pixels[i*4+1];
+          var b = pixels[i*4+2];
+          var hsv = [0.0, 0.0, 0.0];
+          var rgb = [0, 0, 0];
+
+          RGB2HSV(r, g, b, hsv);
+          hsv[0] = hsv[0] + (player.color/360);
+          /*if (hsv[0] >= 360) {
+            hsv[0] -= 360;
+          }*/
+
+          hsvToRgb(rgb, hsv);
+          pixels[i*4] = rgb[0];
+          pixels[i*4+1] = rgb[1];
+          pixels[i*4+2] = rgb[2];
+          //console.log(hsv);
+        };
+        game.context.putImageData(imageData, player.position.x, player.position.y);
+      });
       img.src = '/assets/moving_player.gif'
     });
   }
@@ -153,4 +177,75 @@ Array.prototype.equals = function (array) {
     }
   }
   return true;
+}
+
+function RGB2HSV(r, g, b, hsv) {
+  var K = 0.0,
+  swap = 0;
+  if (g < b) {
+    swap = g;
+    g = b;
+    b = swap;
+    K = -1.0;
+  }
+  if (r < g) {
+    swap = r;
+    r = g;
+    g = swap;
+    K = -2.0 / 6.0 - K;
+  }
+  var chroma = r - (g < b ? g : b);
+  hsv[0] = Math.abs(K + (g - b) / (6.0 * chroma + 1e-20));
+  hsv[1] = chroma / (r + 1e-20);
+  hsv[2] = r;
+}
+
+function hsvToRgb(rgb, hsv) {
+    var h = hsv[0];
+    var s = hsv[1];
+    var v = hsv[2];
+
+    // The HUE should be at range [0, 1], convert 1.0 to 0.0 if needed.
+    if (h >= 1.0) h -= 1.0;
+
+    h *= 6.0;
+    var index = Math.floor(h);
+
+    var f = h - index;
+    var p = v * (1.0 - s);
+    var q = v * (1.0 - s * f);
+    var t = v * (1.0 - s * (1.0 - f));
+
+    switch (index) {
+        case 0:
+            rgb[0] = v;
+            rgb[1] = t;
+            rgb[2] = p;
+            return;
+        case 1:
+            rgb[0] = q;
+            rgb[1] = v;
+            rgb[2] = p;
+            return;
+        case 2:
+            rgb[0] = p;
+            rgb[1] = v;
+            rgb[2] = t;
+            return;
+        case 3:
+            rgb[0] = p;
+            rgb[1] = q;
+            rgb[2] = v;
+            return;
+        case 4:
+            rgb[0] = t;
+            rgb[1] = p;
+            rgb[2] = v;
+            return;
+        case 5:
+            rgb[0] = v;
+            rgb[1] = p;
+            rgb[2] = q;
+            return;
+    }
 }
