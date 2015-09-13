@@ -2,8 +2,10 @@ $( ->
   if $('.pad').length
     console.log 'initializing controller websocket'
     App.controller = App.cable.subscriptions.create "ControllerChannel",
+      connected: ->
+        @perform 'set_user', { user: $('.pad').data('username') }
       move: (data) ->
-        @perform 'action', { data: data, user: $('.pad').data('username') }
+        @perform 'action', { move: data, user: $('.pad').data('username') }
 
     console.log 'initializing controls'
     $('.control').bind 'touchstart', ->
