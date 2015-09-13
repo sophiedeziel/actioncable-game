@@ -8,8 +8,7 @@ function ActionCableGame (params) {
 
   window.addEventListener('resize', function(){game.resizeCanvas(game)}, false);
 
-  this.createFrame = function(game_instance){
-    var game = game_instance;
+  this.createFrame = function(){
 
     $.each(game.players_list.get_players(), function(i, player) {
       game.applyGravity(player.position);
@@ -17,15 +16,15 @@ function ActionCableGame (params) {
 
     game.drawStuff();
 
-    setTimeout(function() {
+    window.requestAnimationFrame(function() {
       game.canvas.width = game.canvas.width;
-      game.createFrame(game);
-    }, 1000/60);
+      game.createFrame();
+    });
 
   }
 
   this.drawStuff = function() {
-    var game = this;
+
     $.each(game.players_list.get_players(), function(i, player) {
       player.render( game.context );
     });
@@ -66,17 +65,17 @@ function Player(name, color) {
   this.color = color;
   this.position = new Position(Position.prototype.default_x, Position.prototype.default_y);
 
-  this.img = new Image();
-  this.buffer = document.createElement('canvas');
-  this.bcontext = this.buffer.getContext('2d');
+  var img = new Image();
+  var buffer = document.createElement('canvas');
+  var bcontext = buffer.getContext('2d');
 
-  this.img.src = '/assets/moving_player.gif';
+  img.src = '/assets/moving_player.gif';
   var the_player = this;
 
-  this.img.onload = function() {
+  img.onload = function() {
     console.log(the_player);
-    the_player.bcontext.drawImage(this, 0, 0, 75, 75);
-    var imageData = the_player.bcontext.getImageData(0, 0, 75, 75);
+    bcontext.drawImage(this, 0, 0, 75, 75);
+    var imageData = bcontext.getImageData(0, 0, 75, 75);
     var pixels = imageData.data;
     var numPixels = imageData.width * imageData.height;
     for (var i = 0; i < numPixels; i++) {
@@ -97,13 +96,12 @@ function Player(name, color) {
       pixels[i*4+1] = rgb[1];
       pixels[i*4+2] = rgb[2];
     };
-    the_player.buffer.width = the_player.buffer.width;
-    the_player.bcontext.putImageData(imageData, 0, 0);
+    buffer.width = buffer.width;
+    bcontext.putImageData(imageData, 0, 0);
   };
 
   this.render = function(context) {
-    context.drawImage(this.buffer, this.position.x, this.position.y);
-
+    context.drawImage(buffer, this.position.x, this.position.y);
   }
 }
 
