@@ -8,7 +8,7 @@ class GameChannel < ApplicationChannel
   private
 
   def update_users
-    ActionCable.server.broadcast "game_channel", { players: players}
+    ActionCable.server.broadcast "game_channel", { players: players, connection: params }
   end
 
 end

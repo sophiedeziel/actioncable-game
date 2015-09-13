@@ -10,7 +10,7 @@ module ApplicationCable
       if current_user = cookies.signed[:username]
         current_user
       else
-        reject_unauthorized_connection
+        reject_unauthorized_connection unless cookies.signed[:game_monitor]
       end
     end
   end

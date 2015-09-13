@@ -14,4 +14,9 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require cable
+//= require game
 //= require_tree .
+
+$(function() {
+  Game = new ActionCableGame;
+});
