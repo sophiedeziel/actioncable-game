@@ -10,48 +10,24 @@ function ActionCableGame (params) {
 
   this.createFrame = function(game_instance){
     var game = game_instance;
+
     $.each(game.players_list.get_players(), function(i, player) {
       game.applyGravity(player.position);
     });
+
     game.drawStuff();
-    window.requestAnimationFrame(function() {
-      game.createFrame(game)
-    });
+
+    setTimeout(function() {
+      game.canvas.width = game.canvas.width;
+      game.createFrame(game);
+    }, 1000/60);
+
   }
 
   this.drawStuff = function() {
     var game = this;
-    $(game.canvas).html('');
     $.each(game.players_list.get_players(), function(i, player) {
-      var img = new Image();
-      $(img).load(function() {
-        game.context.clearRect(player.position.x,  player.position.y, 75, 75);
-        game.context.drawImage(img, player.position.x, player.position.y, 75, 75);
-        var imageData = game.context.getImageData(player.position.x, player.position.y, 75, 75);
-        var pixels = imageData.data;
-        var numPixels = imageData.width * imageData.height;
-        for (var i = 0; i < numPixels; i++) {
-          var r = pixels[i*4];
-          var g =  pixels[i*4+1];
-          var b = pixels[i*4+2];
-          var hsv = [0.0, 0.0, 0.0];
-          var rgb = [0, 0, 0];
-
-          RGB2HSV(r, g, b, hsv);
-          hsv[0] = hsv[0] + (player.color/360);
-          /*if (hsv[0] >= 360) {
-            hsv[0] -= 360;
-          }*/
-
-          hsvToRgb(rgb, hsv);
-          pixels[i*4] = rgb[0];
-          pixels[i*4+1] = rgb[1];
-          pixels[i*4+2] = rgb[2];
-          //console.log(hsv);
-        };
-        game.context.putImageData(imageData, player.position.x, player.position.y);
-      });
-      img.src = '/assets/moving_player.gif'
+      player.render( game.context );
     });
   }
 
@@ -66,8 +42,6 @@ function ActionCableGame (params) {
     this.canvas.height = $('#game').innerHeight() - $('#players').height();
     this.drawStuff();
   }
-
-
   this.createFrame(this);
 }
 
@@ -90,7 +64,47 @@ function Player(name, color) {
   this.name = name;
   this.score = 0;
   this.color = color;
-  this.position = new Position(Position.prototype.default_x, Position.prototype.default_y)
+  this.position = new Position(Position.prototype.default_x, Position.prototype.default_y);
+
+  this.img = new Image();
+  this.buffer = document.createElement('canvas');
+  this.bcontext = this.buffer.getContext('2d');
+
+  this.img.src = '/assets/moving_player.gif';
+  var the_player = this;
+
+  this.img.onload = function() {
+    console.log(the_player);
+    the_player.bcontext.drawImage(this, 0, 0, 75, 75);
+    var imageData = the_player.bcontext.getImageData(0, 0, 75, 75);
+    var pixels = imageData.data;
+    var numPixels = imageData.width * imageData.height;
+    for (var i = 0; i < numPixels; i++) {
+      var r = pixels[i*4];
+      var g =  pixels[i*4+1];
+      var b = pixels[i*4+2];
+      var hsv = [0.0, 0.0, 0.0];
+      var rgb = [0, 0, 0];
+
+      RGB2HSV(r, g, b, hsv);
+      hsv[0] = hsv[0] + (the_player.color/360.0);
+      if (hsv[0] >= 1.0) {
+        hsv[0] -= 1.0;
+      }
+
+      hsvToRgb(rgb, hsv);
+      pixels[i*4] = rgb[0];
+      pixels[i*4+1] = rgb[1];
+      pixels[i*4+2] = rgb[2];
+    };
+    the_player.buffer.width = the_player.buffer.width;
+    the_player.bcontext.putImageData(imageData, 0, 0);
+  };
+
+  this.render = function(context) {
+    context.drawImage(this.buffer, this.position.x, this.position.y);
+
+  }
 }
 
 function PlayersList() {
@@ -179,6 +193,11 @@ Array.prototype.equals = function (array) {
   return true;
 }
 
+function shiftHue(imagedata, hue) {
+
+
+}
+
 function RGB2HSV(r, g, b, hsv) {
   var K = 0.0,
   swap = 0;
@@ -201,51 +220,51 @@ function RGB2HSV(r, g, b, hsv) {
 }
 
 function hsvToRgb(rgb, hsv) {
-    var h = hsv[0];
-    var s = hsv[1];
-    var v = hsv[2];
+  var h = hsv[0];
+  var s = hsv[1];
+  var v = hsv[2];
 
-    // The HUE should be at range [0, 1], convert 1.0 to 0.0 if needed.
-    if (h >= 1.0) h -= 1.0;
+  // The HUE should be at range [0, 1], convert 1.0 to 0.0 if needed.
+  if (h >= 1.0) h -= 1.0;
 
-    h *= 6.0;
-    var index = Math.floor(h);
+  h *= 6.0;
+  var index = Math.floor(h);
 
-    var f = h - index;
-    var p = v * (1.0 - s);
-    var q = v * (1.0 - s * f);
-    var t = v * (1.0 - s * (1.0 - f));
+  var f = h - index;
+  var p = v * (1.0 - s);
+  var q = v * (1.0 - s * f);
+  var t = v * (1.0 - s * (1.0 - f));
 
-    switch (index) {
-        case 0:
-            rgb[0] = v;
-            rgb[1] = t;
-            rgb[2] = p;
-            return;
-        case 1:
-            rgb[0] = q;
-            rgb[1] = v;
-            rgb[2] = p;
-            return;
-        case 2:
-            rgb[0] = p;
-            rgb[1] = v;
-            rgb[2] = t;
-            return;
-        case 3:
-            rgb[0] = p;
-            rgb[1] = q;
-            rgb[2] = v;
-            return;
-        case 4:
-            rgb[0] = t;
-            rgb[1] = p;
-            rgb[2] = v;
-            return;
-        case 5:
-            rgb[0] = v;
-            rgb[1] = p;
-            rgb[2] = q;
-            return;
-    }
+  switch (index) {
+    case 0:
+      rgb[0] = v;
+      rgb[1] = t;
+      rgb[2] = p;
+      return;
+    case 1:
+      rgb[0] = q;
+      rgb[1] = v;
+      rgb[2] = p;
+      return;
+    case 2:
+      rgb[0] = p;
+      rgb[1] = v;
+      rgb[2] = t;
+      return;
+    case 3:
+      rgb[0] = p;
+      rgb[1] = q;
+      rgb[2] = v;
+      return;
+    case 4:
+      rgb[0] = t;
+      rgb[1] = p;
+      rgb[2] = v;
+      return;
+    case 5:
+      rgb[0] = v;
+      rgb[1] = p;
+      rgb[2] = q;
+      return;
+  }
 }
