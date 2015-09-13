@@ -6,12 +6,30 @@ function ActionCableGame (params) {
   Position.prototype.default_y = $('#game').height() / 2;
   var game = this;
 
+  this.actions = {
+    'a-start': function(player){
+      player.jump();
+    },
+    'right-start': function(player) {
+      player.start_move_right();
+    },
+    'right-end': function(player) {
+      player.stop_h();
+    },
+    'left-start': function(player) {
+      player.start_move_left();
+    },
+    'left-end': function(player) {
+      player.stop_h();
+    }
+  }
   window.addEventListener('resize', function(){game.resizeCanvas(game)}, false);
 
   this.createFrame = function(){
 
     $.each(game.players_list.get_players(), function(i, player) {
       game.applyGravity(player);
+      game.applyFriction(player);
     });
 
     game.drawStuff();
@@ -29,11 +47,29 @@ function ActionCableGame (params) {
   }
 
   this.applyGravity = function(player) {
-    var gravity_velocity = 0.1;
-    if (player.position.y <= this.canvas.height - 65) {
+    var gravity_velocity = 0.5;
+    if (player.position.y <= this.canvas.height - 140) {
       player.velY += gravity_velocity;
-    } else {
+    } else if( player.velY > 0 ) {
       player.velY = 0;
+    }
+  }
+
+  this.applyFriction = function(player) {
+    var friction_factor = 0.2;
+    if (player.velX > 1 && player.velX < player.speed) {
+      player.velX -= friction_factor;
+    } else if (player.velX < -1 && player.velX > -player.speed) {
+      player.velX += friction_factor;
+    } else if (player.velX < 1 && player.velX > -1) {
+      player.velX = 0;
+    }
+  }
+
+  this.player_action = function(player_name, control) {
+    var player = this.players_list.find(player_name);
+    if ( player !== undefined ) {
+      this.actions[control](player);
     }
   }
 
@@ -63,7 +99,7 @@ function Player(name, color) {
   this.name = name;
   this.score = 0;
   this.color = color;
-  this.speed = 3;
+  this.speed = 10;
   this.velX = 0.0;
   this.velY = 0.0;
   this.position = new Position(Position.prototype.default_x, Position.prototype.default_y);
@@ -76,8 +112,8 @@ function Player(name, color) {
   var the_player = this;
 
   img.onload = function() {
-    bcontext.drawImage(this, 0, 0, 75, 75);
-    var imageData = bcontext.getImageData(0, 0, 75, 75);
+    bcontext.drawImage(this, 0, 0, 175, 175);
+    var imageData = bcontext.getImageData(0, 0, 175, 175);
     var pixels = imageData.data;
     var numPixels = imageData.width * imageData.height;
     for (var i = 0; i < numPixels; i++) {
@@ -101,6 +137,22 @@ function Player(name, color) {
     buffer.width = buffer.width;
     bcontext.putImageData(imageData, 0, 0);
   };
+
+  this.jump = function(){
+    if (this.velY == 0) this.velY -= this.speed * 2;
+  }
+
+  this.start_move_right = function() {
+    this.velX = this.speed;
+  }
+
+  this.start_move_left = function() {
+    this.velX = - this.speed;
+  }
+
+  this.stop_h = function() {
+    this.velX *= 0.8;
+  }
 
   this.render = function(context) {
     this.position.x += this.velX;
