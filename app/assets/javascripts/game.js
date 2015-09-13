@@ -11,7 +11,7 @@ function ActionCableGame (params) {
   this.createFrame = function(){
 
     $.each(game.players_list.get_players(), function(i, player) {
-      game.applyGravity(player.position);
+      game.applyGravity(player);
     });
 
     game.drawStuff();
@@ -23,15 +23,17 @@ function ActionCableGame (params) {
   }
 
   this.drawStuff = function() {
-
     $.each(game.players_list.get_players(), function(i, player) {
       player.render( game.context );
     });
   }
 
-  this.applyGravity = function(position) {
-    if (position.y <= this.canvas.height - 65) {
-      position.y = position.y + 2;
+  this.applyGravity = function(player) {
+    var gravity_velocity = 0.1;
+    if (player.position.y <= this.canvas.height - 65) {
+      player.velY += gravity_velocity;
+    } else {
+      player.velY = 0;
     }
   }
 
@@ -61,6 +63,9 @@ function Player(name, color) {
   this.name = name;
   this.score = 0;
   this.color = color;
+  this.speed = 3;
+  this.velX = 0.0;
+  this.velY = 0.0;
   this.position = new Position(Position.prototype.default_x, Position.prototype.default_y);
 
   var img = new Image();
@@ -71,7 +76,6 @@ function Player(name, color) {
   var the_player = this;
 
   img.onload = function() {
-    console.log(the_player);
     bcontext.drawImage(this, 0, 0, 75, 75);
     var imageData = bcontext.getImageData(0, 0, 75, 75);
     var pixels = imageData.data;
@@ -99,6 +103,8 @@ function Player(name, color) {
   };
 
   this.render = function(context) {
+    this.position.x += this.velX;
+    this.position.y += this.velY;
     context.drawImage(buffer, this.position.x, this.position.y);
   }
 }
