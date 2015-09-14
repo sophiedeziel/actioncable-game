@@ -1,2 +1,2 @@
 @App = {}
-App.cable = Cable.createConsumer 'ws://10.0.1.17:28080'
+App.cable = Cable.createConsumer 'ws://game.sophiedeziel.com:8020'
