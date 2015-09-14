@@ -95,6 +95,10 @@ ActionCableGame.prototype.update_players = function(players) {
   });
 }
 
+function Coin() {
+  this.position = new Position(Position.prototype.default_x, Position.prototype.default_y);
+}
+
 function Player(name, color) {
   this.name = name;
   this.score = 0;
