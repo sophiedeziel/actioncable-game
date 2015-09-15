@@ -1,5 +1,6 @@
 function ActionCableGame (params) {
   this.players_list = new PlayersList();
+  this.coins = [];
   this.canvas = document.getElementById('field'),
   this.context = this.canvas.getContext('2d');
   Position.prototype.default_x = $('#game').width() / 2;
@@ -23,10 +24,10 @@ function ActionCableGame (params) {
       player.stop_h();
     }
   }
+
   window.addEventListener('resize', function(){game.resizeCanvas(game)}, false);
 
   this.createFrame = function(){
-
     $.each(game.players_list.get_players(), function(i, player) {
       game.applyGravity(player);
       game.applyFriction(player);
@@ -45,14 +46,37 @@ function ActionCableGame (params) {
     $.each(game.players_list.get_players(), function(i, player) {
       player.render( game.context );
     });
+
+    hits = [];
+    $.each(game.coins, function(i, coin) {
+      coin.render( game.context );
+
+      $.each(game.players_list.get_players(), function(j, player) {
+        if(CircleInsideRect(coin.position,player.position)) {
+          hits.push({ 'player': player, 'coin': coin });
+        }
+      });
+    });
+    game.processHits(hits);
   }
 
-  this.applyGravity = function(player) {
+  this.processHits = function(hits) {
+    $.each(hits, function(i, hit) {
+      var coin_index = game.coins.indexOf(hit['coin']);
+        if(coin_index != -1) {
+          game.coins.splice(coin_index, 1);
+          hit['player'].give_points(100);
+        }
+    });
+
+  }
+
+  this.applyGravity = function(object) {
     var gravity_velocity = 0.5;
-    if (player.position.y <= this.canvas.height - 140) {
-      player.velY += gravity_velocity;
-    } else if( player.velY > 0 ) {
-      player.velY = 0;
+    if (object.position.y <= this.canvas.height - 140) {
+      object.velY += gravity_velocity;
+    } else if( object.velY > 0 ) {
+      object.velY = 0;
     }
   }
 
@@ -84,6 +108,12 @@ function ActionCableGame (params) {
     }
   }
 
+  this.drop_coins = function(number) {
+    for(i=0; i < number; i++) {
+      this.coins.push(new Coin(random(this.canvas.width),random(this.canvas.height)));
+    }
+  }
+
   this.resizeCanvas = function(game_instance) {
     this.canvas.width = $('#game').innerWidth();
     this.canvas.height = $('#game').innerHeight() - $('#players').height();
@@ -106,8 +136,14 @@ ActionCableGame.prototype.update_players = function(players) {
   });
 }
 
-function Coin() {
-  this.position = new Position(Position.prototype.default_x, Position.prototype.default_y);
+function Coin(x, y) {
+  this.position = new Position(x, y);
+  var image = new Image();
+  image.src = '/assets/coin.png';
+
+  this.render = function (context) {
+    context.drawImage(image, this.position.x, this.position.y, 20, 20);
+  }
 }
 
 function Player(name, color) {
@@ -167,6 +203,11 @@ function Player(name, color) {
 
   this.stop_h = function() {
     this.velX *= 0.8;
+  }
+
+  this.give_points = function(points) {
+    this.score += points;
+    $('li[data-player="'+ this.name +'"] .score').html(this.score);
   }
 
   this.render = function(context) {
@@ -252,6 +293,19 @@ Array.prototype.equals = function (array) {
     }
   }
   return true;
+}
+
+function CircleInsideRect(circle,rect){
+  return(
+      circle.x-20>rect.x &&
+      circle.x+20<rect.x+175 &&
+      circle.y-20>rect.y &&
+      circle.y+20<rect.y+175
+      )
+}
+
+function random(end) {
+  return Math.floor(Math.random() * (end)) + 1;
 }
 
 function RGB2HSV(r, g, b, hsv) {

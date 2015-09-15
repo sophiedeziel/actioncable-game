@@ -7,4 +7,6 @@ $( ->
           Game.player_action(data['player'], data['move'])
         if data['players']
           Game.update_players data['players']
+        if data['coins']
+          Game.drop_coins data['coins']
 )
