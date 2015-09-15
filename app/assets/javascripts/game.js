@@ -30,6 +30,7 @@ function ActionCableGame (params) {
     $.each(game.players_list.get_players(), function(i, player) {
       game.applyGravity(player);
       game.applyFriction(player);
+      game.applyBoundaries(player);
     });
 
     game.drawStuff();
@@ -62,6 +63,16 @@ function ActionCableGame (params) {
     } else if (player.velX < -1 && player.velX > -player.speed) {
       player.velX += friction_factor;
     } else if (player.velX < 1 && player.velX > -1) {
+      player.velX = 0;
+    }
+  }
+
+  this.applyBoundaries = function(player) {
+    if (player.position.x >= (game.canvas.width - 135)) {
+      player.position.x = game.canvas.width - 136;
+      player.velX = 0;
+    } else if (player.position.x <= -45 ) {
+      player.position.x = -44;
       player.velX = 0;
     }
   }

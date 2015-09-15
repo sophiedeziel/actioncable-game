@@ -1,5 +1,5 @@
 class GameChannel < ApplicationChannel
-  periodically :update_users, every: 1.second
+  periodically :update_users, every: 3.second
 
   def subscribed
     stream_from "game_channel"
